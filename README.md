@@ -1,38 +1,55 @@
-# create-svelte
+# SvelteKit Reactive Fetch Issue
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+To reproduce the issue...
 
-## Creating a project
+Clone this repository
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+```sh
+git clone https://github.com/travishorn/sveltekit-reactive-fetch-issue
 ```
 
-## Developing
+Change into the directory
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+```sh
+cd sveltekit-reactive-fetch-issue
+```
 
-```bash
+Install dependencies
+
+```sh
+npm install
+```
+
+Launch the development server
+
+```sh
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Go to the running app at http://localhost:5173
 
-To create a production version of your app:
+## Description of Issue
 
-```bash
-npm run build
-```
+In [+page.svelte](./src/routes/+page.svelte), I am trying to fetch data from the
+[+server.js](./src/routes/api/+server.js) handler, but I receive this error:
 
-You can preview the production build with `npm run preview`.
+> Error: Cannot call `fetch` eagerly during server side rendering with relative
+> URL (/api/?subject=Svelte) — put your `fetch` calls inside `onMount` or a
+> `load` function instead
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+I modeled that page after [this REPL
+example](https://svelte.dev/repl/16e48fadc6ac4f21aa9a6befc3bde66d?version=3.3.0)
+which *does* work, but uses an absolute URL to a remote endpoint. I need to
+fetch data from a `+server.js` endpoint.
+
+According to the error message, I must put the `fetch` call inside `onMount` or
+a `load` function.
+
+Putting the code inside `onMount` eliminates the error, but the `fetch` is not
+reactive. Instead, the `fetch` only executes once and never updates. In
+addition, I get the following warning:
+
+> $: has no effect outside of the top-level
+
+So if `fetch` calls must be inside `onMount` or `load`, and `$` must be
+top-level, how do I fetch data from the `+server.js` endpoint in a reactive way?

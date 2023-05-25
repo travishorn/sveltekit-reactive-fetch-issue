@@ -1,2 +1,14 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+  let subject = "Svelte";
+
+  let message = "";
+
+  // Why does this produce an error?
+  $: fetch(`/api/?subject=${subject}`)
+    .then((response) => response.json())
+    .then((data) => (message = data.message));
+</script>
+
+<input bind:value={subject} />
+
+{message}
